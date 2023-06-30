@@ -12,15 +12,10 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
 const wsEndpoint = "ws://127.0.0.1:30000/ws"
-
-type OBUData struct {
-	OBUID int     `json:"obuId"`
-	Lat   float64 `json:"lat"`
-	Long  float64 `json:"long"`
-}
 
 func main() {
 	obuIDS := generateOBUIDs(20)
@@ -32,7 +27,7 @@ func main() {
 	for {
 		for i := 0; i < len(obuIDS); i++ {
 			lat, long := generateLocation()
-			data := OBUData{
+			data := types.OBUData{
 				OBUID: obuIDS[i],
 				Lat:   lat,
 				Long:  long,
