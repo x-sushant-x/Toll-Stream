@@ -1,16 +1,27 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/segmentio/kafka-go"
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
+const topic = "toll-calculator"
+const partition = 0
+
 func main() {
-	dataReceiver := NewDataReceiver()
+	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", topic, partition)
+	if err != nil {
+		log.Fatal("failed to dial leader:", err)
+	}
+
+	dataReceiver := NewDataReceiver(conn)
 	http.HandleFunc("/ws", dataReceiver.wsHandler)
 
 	if err := http.ListenAndServe(":30000", nil); err != nil {
@@ -19,13 +30,13 @@ func main() {
 }
 
 type DataReceiver struct {
-	msgCh chan types.OBUData
-	conn  *websocket.Conn
+	webSCon *websocket.Conn
+	conn    *kafka.Conn
 }
 
-func NewDataReceiver() *DataReceiver {
+func NewDataReceiver(conn *kafka.Conn) *DataReceiver {
 	return &DataReceiver{
-		msgCh: make(chan types.OBUData, 128),
+		conn: conn,
 	}
 }
 
@@ -39,7 +50,7 @@ func (dr *DataReceiver) wsHandler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	dr.conn = conn
+	dr.webSCon = conn
 	go dr.wsRecieveLoop()
 }
 
@@ -47,15 +58,21 @@ func (dr *DataReceiver) wsRecieveLoop() {
 	fmt.Println("Client Connected")
 	for {
 		var data types.OBUData
-		if err := dr.conn.ReadJSON(&data); err != nil {
+		if err := dr.webSCon.ReadJSON(&data); err != nil {
 			log.Println("Error: ", err)
 			continue
 		}
-		dr.msgCh <- data
-		res, ok := <-dr.msgCh
-		if !ok {
-			log.Println("Error while reading data from channel")
+
+		d, err := json.Marshal(&data)
+		if err != nil {
+			log.Fatal(err)
 		}
-		fmt.Println(res)
+
+		_, err = dr.conn.WriteMessages(
+			kafka.Message{Value: []byte(d)},
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
