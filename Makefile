@@ -2,7 +2,8 @@ sender:
 	@ go run OBU/main.go
 
 receiver:
-	@ go run data_reciever/main.go
+	@go build -o bin/data_receiver ./data_receiver
+	@./bin/receiver 
 
 run:
 	@ go run main.go

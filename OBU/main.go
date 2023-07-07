@@ -34,7 +34,7 @@ func main() {
 			}
 			err := conn.WriteJSON(data)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Println("Error", err)
 			}
 
 			fmt.Printf("OBU ID: %d \nLat: %f \nLong: %f \n\n", data.OBUID, data.Lat, data.Long)
