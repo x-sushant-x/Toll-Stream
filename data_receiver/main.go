@@ -10,7 +10,11 @@ import (
 )
 
 func main() {
-	dataReceiver := NewDataReceiver()
+	dataReceiver, err := NewDataReceiver()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	http.HandleFunc("/ws", dataReceiver.wsHandler)
 
 	if err := http.ListenAndServe(":30000", nil); err != nil {
@@ -23,12 +27,25 @@ type DataReceiver struct {
 	prod    DataProducer
 }
 
-func NewDataReceiver() *DataReceiver {
-	prod := NewKafkaProducer()
+func NewDataReceiver() (*DataReceiver, error) {
+	var (
+		prod DataProducer
+		err  error
+	)
+
+	prod, err = NewKafkaProducer()
+	if err != nil {
+		return nil, err
+	}
+
+	prod, err = NewLogMiddleware(prod)
+	if err != nil {
+		return nil, err
+	}
 
 	return &DataReceiver{
 		prod: prod,
-	}
+	}, nil
 }
 
 func (dr *DataReceiver) wsHandler(w http.ResponseWriter, req *http.Request) {

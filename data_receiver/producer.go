@@ -14,14 +14,14 @@ const topic = "toll-calculator"
 const partition = 0
 
 type DataProducer interface {
-	ProduceData(types.OBUData) error
+	ProduceData(types.OBUData)
 }
 
 type KafkaProducer struct {
 	producer *kafka.Conn
 }
 
-func NewKafkaProducer() *KafkaProducer {
+func NewKafkaProducer() (*KafkaProducer, error) {
 	conn, err := kafka.DialLeader(context.Background(), "tcp", "localhost:9092", topic, partition)
 	if err != nil {
 		log.Fatal("failed to dial leader:", err)
@@ -29,13 +29,13 @@ func NewKafkaProducer() *KafkaProducer {
 
 	return &KafkaProducer{
 		producer: conn,
-	}
+	}, nil
 }
 
-func (dr KafkaProducer) ProduceData(data types.OBUData) error {
+func (dr KafkaProducer) ProduceData(data types.OBUData) {
 	d, err := json.Marshal(&data)
 	if err != nil {
-		return err
+		fmt.Println("Error: ", err)
 	}
 
 	_, err = dr.producer.WriteMessages(
@@ -44,5 +44,4 @@ func (dr KafkaProducer) ProduceData(data types.OBUData) error {
 	if err != nil {
 		fmt.Println("Error: ", err)
 	}
-	return nil
 }
