@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/sirupsen/logrus"
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
@@ -18,7 +16,6 @@ func NewLogMiddleware(next DataProducer) (*LogMiddleware, error) {
 }
 
 func (l *LogMiddleware) ProduceData(data types.OBUData) {
-	fmt.Println("Inside Wrapped Producer")
 	defer logrus.WithFields(
 		logrus.Fields{
 			"obuID": data.OBUID,

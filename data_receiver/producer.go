@@ -33,7 +33,6 @@ func NewKafkaProducer() (*KafkaProducer, error) {
 }
 
 func (dr KafkaProducer) ProduceData(data types.OBUData) {
-	fmt.Println("Inside Original Produce")
 	d, err := json.Marshal(&data)
 	if err != nil {
 		fmt.Println("Error: ", err)

@@ -8,7 +8,7 @@ receiver:
 
 calculator:
 	@ go build -o bin/calculator ./distance_calculator
-	@ ./bin/distance_calculator
+	@ ./bin/calculator
 
 run:
 	@ go run main.go
