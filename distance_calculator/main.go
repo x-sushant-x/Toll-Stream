@@ -3,7 +3,7 @@ package main
 import "log"
 
 func main() {
-	kafkaConsumer, err := NewKafkaConsumer("toll-calculator")
+	kafkaConsumer, err := NewKafkaConsumer("toll-service")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -10,7 +10,7 @@ import (
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
-const topic = "toll-calculator"
+const topic = "toll-service"
 const partition = 0
 
 type DataProducer interface {

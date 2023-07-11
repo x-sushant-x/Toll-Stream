@@ -2,16 +2,19 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/sirupsen/logrus"
+	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
 type KafkaConsumer struct {
-	consumer  *kafka.Conn
-	isRunning bool
+	consumer    *kafka.Conn
+	isRunning   bool
+	calcService CalculatorServicer
 }
 
 func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
@@ -20,8 +23,12 @@ func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
 		log.Fatal("failed to dial leader:", err)
 	}
 
+	calcService := NewCalculateService()
+
 	return &KafkaConsumer{
-		consumer: conn,
+		consumer:    conn,
+		isRunning:   false,
+		calcService: calcService,
 	}, nil
 }
 
@@ -31,10 +38,19 @@ func (c *KafkaConsumer) consume() {
 		if err != nil {
 			fmt.Print(err)
 		}
-		fmt.Println(string(msg.Value))
+		// fmt.Println(string(msg.Value))
 
-		b := make([]byte, 10e3)
-		_ = b
+		var data types.OBUData
+		if err := json.Unmarshal(msg.Value, &data); err != nil {
+			logrus.Error("Error: ", err)
+			continue
+		}
+		distance, err := c.calcService.CalculateDistance(data)
+		if err != nil {
+			logrus.Error("Error: Unable to parse data.")
+			continue
+		}
+		fmt.Println("Distance: ", distance, " KMs")
 	}
 }
 
