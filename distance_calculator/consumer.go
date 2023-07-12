@@ -2,13 +2,12 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/sirupsen/logrus"
-	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
 type KafkaConsumer struct {
@@ -33,24 +32,39 @@ func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
 }
 
 func (c *KafkaConsumer) consume() {
-	for c.isRunning {
-		msg, err := c.consumer.ReadMessage(1e3)
-		if err != nil {
-			fmt.Print(err)
-		}
-		// fmt.Println(string(msg.Value))
+	reader := kafka.NewReader(
+		kafka.ReaderConfig{
+			Brokers:     []string{"localhost:9092"},
+			Topic:       "toll-service",
+			GroupID:     "toll-group",
+			MinBytes:    1e3,
+			MaxBytes:    10e3,
+			StartOffset: kafka.LastOffset,
+		},
+	)
 
-		var data types.OBUData
-		if err := json.Unmarshal(msg.Value, &data); err != nil {
-			logrus.Error("Error: ", err)
-			continue
+	defer reader.Close()
+
+	go func() {
+		for {
+			m, err := reader.ReadMessage(context.Background())
+			if err != nil {
+				logrus.Error("Error: ", err)
+				continue
+			}
+			fmt.Println("Data: ", string(m.Value))
 		}
-		distance, err := c.calcService.CalculateDistance(data)
-		if err != nil {
-			logrus.Error("Error: Unable to parse data.")
-			continue
+	}()
+
+	for {
+		time.Sleep(time.Second * 1)
+		hasNewMessage := reader.Stats().Messages > 0
+
+		fmt.Println("Waiting for location coordinates")
+
+		if hasNewMessage {
+			break
 		}
-		fmt.Println("Distance: ", distance, " KMs")
 	}
 }
 
