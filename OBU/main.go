@@ -38,7 +38,7 @@ func main() {
 			}
 
 			fmt.Printf("OBU ID: %d \nLat: %f \nLong: %f \n\n", data.OBUID, data.Lat, data.Long)
-			time.Sleep(time.Second * 1)
+			time.Sleep(time.Second * 5)
 		}
 	}
 }

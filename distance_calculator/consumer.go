@@ -2,17 +2,17 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/sirupsen/logrus"
+	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
 type KafkaConsumer struct {
 	consumer    *kafka.Conn
-	isRunning   bool
 	calcService CalculatorServicer
 }
 
@@ -26,7 +26,6 @@ func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
 
 	return &KafkaConsumer{
 		consumer:    conn,
-		isRunning:   false,
 		calcService: calcService,
 	}, nil
 }
@@ -34,42 +33,34 @@ func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
 func (c *KafkaConsumer) consume() {
 	reader := kafka.NewReader(
 		kafka.ReaderConfig{
-			Brokers:     []string{"localhost:9092"},
-			Topic:       "toll-service",
-			GroupID:     "toll-group",
-			MinBytes:    1e3,
-			MaxBytes:    10e3,
-			StartOffset: kafka.LastOffset,
+			Brokers:  []string{"localhost:9092"},
+			Topic:    "toll-service",
+			GroupID:  "toll-group",
+			MinBytes: 1e3,
+			MaxBytes: 10e3,
 		},
 	)
 
-	defer reader.Close()
-
-	go func() {
-		for {
-			m, err := reader.ReadMessage(context.Background())
-			if err != nil {
-				logrus.Error("Error: ", err)
-				continue
-			}
-			fmt.Println("Data: ", string(m.Value))
-		}
-	}()
-
 	for {
-		time.Sleep(time.Second * 1)
-		hasNewMessage := reader.Stats().Messages > 0
-
-		fmt.Println("Waiting for location coordinates")
-
-		if hasNewMessage {
-			break
+		m, err := reader.ReadMessage(context.Background())
+		if err != nil {
+			logrus.Error("Error: ", err)
+			continue
 		}
+		var data types.OBUData
+		if err = json.Unmarshal(m.Value, &data); err != nil {
+			logrus.Error("Serialization Error: ", err)
+		}
+
+		dist, err := c.calcService.CalculateDistance(data)
+		if err != nil {
+			logrus.Error("Calculate Error: ", err)
+		}
+		fmt.Println("Distance: ", dist)
 	}
 }
 
 func (c *KafkaConsumer) Start() {
-	logrus.Info("Started kafka consumer.")
-	c.isRunning = true
+	fmt.Println("Waiting For Data...")
 	go c.consume()
 }

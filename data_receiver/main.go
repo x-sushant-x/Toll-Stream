@@ -17,9 +17,14 @@ func main() {
 
 	http.HandleFunc("/ws", dataReceiver.wsHandler)
 
-	if err := http.ListenAndServe(":30000", nil); err != nil {
-		panic(err)
-	}
+	go func() {
+		if err := http.ListenAndServe(":30000", nil); err != nil {
+			panic(err)
+		}
+	}()
+
+	fmt.Println("Waiting for Coordinates...")
+	select {}
 }
 
 type DataReceiver struct {
