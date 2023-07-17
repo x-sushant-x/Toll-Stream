@@ -10,5 +10,8 @@ calculator:
 	@ go build -o bin/calculator ./distance_calculator
 	@ ./bin/calculator
 
-run:
-	@ go run main.go
+invoicer:
+	@ go build -o bin/invoicer ./invoicer
+	@ ./bin/invoicer
+
+.PHONY: invoicer
