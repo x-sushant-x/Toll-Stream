@@ -7,7 +7,7 @@ import (
 )
 
 type CalculatorServicer interface {
-	CalculateDistance(types.OBUData) (int, error)
+	CalculateDistance(types.OBUData) (float64, error)
 }
 
 type CalculateService struct {
@@ -18,13 +18,13 @@ func NewCalculateService() *CalculateService {
 	return &CalculateService{}
 }
 
-func (s *CalculateService) CalculateDistance(data types.OBUData) (int, error) {
+func (s *CalculateService) CalculateDistance(data types.OBUData) (float64, error) {
 	distance := 0.0
 	if len(s.prevPoint) > 0 {
 		distance = calculateDistance(s.prevPoint[0], s.prevPoint[1], data.Lat, data.Long, "K")
 	}
 	s.prevPoint = []float64{data.Lat, data.Long}
-	return int(distance), nil
+	return float64(distance), nil
 }
 
 func calculateDistance(lat1, lng1, lat2, lng2 float64, unit ...string) float64 {

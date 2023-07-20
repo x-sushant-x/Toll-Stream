@@ -18,7 +18,7 @@ func main() {
 	http.HandleFunc("/ws", dataReceiver.wsHandler)
 
 	go func() {
-		if err := http.ListenAndServe(":30000", nil); err != nil {
+		if err := http.ListenAndServe(":6443", nil); err != nil {
 			panic(err)
 		}
 	}()

@@ -15,7 +15,7 @@ import (
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
-const wsEndpoint = "ws://127.0.0.1:30000/ws"
+const wsEndpoint = "ws://127.0.0.1:6443/ws"
 
 func main() {
 	obuIDS := generateOBUIDs(20)

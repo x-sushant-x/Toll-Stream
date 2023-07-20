@@ -5,15 +5,19 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
+	"time"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/sirupsen/logrus"
+	"github.com/sushant102004/Traffic-Toll-Microservice/invoicer/client"
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
 type KafkaConsumer struct {
 	consumer    *kafka.Conn
 	calcService CalculatorServicer
+	aggClient   *client.AggClient
 }
 
 func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
@@ -23,10 +27,12 @@ func NewKafkaConsumer(topic string) (*KafkaConsumer, error) {
 	}
 
 	calcService := NewCalculateService()
+	aggClient := client.NewAggClient("http://localhost:3000/aggregate")
 
 	return &KafkaConsumer{
 		consumer:    conn,
 		calcService: calcService,
+		aggClient:   aggClient,
 	}, nil
 }
 
@@ -56,7 +62,20 @@ func (c *KafkaConsumer) consume() {
 		if err != nil {
 			logrus.Error("Calculate Error: ", err)
 		}
+
+		dist = math.Floor(dist*100) / 100
+
 		fmt.Println("Distance: ", dist)
+
+		req := types.CalculatedDistance{
+			OBUID:     data.OBUID,
+			Distance:  dist,
+			Timestamp: time.Now().UnixNano(),
+		}
+
+		if err := c.aggClient.PostDataToAPI(req); err != nil {
+			logrus.Error("POST Error: ", err.Error())
+		}
 	}
 }
 

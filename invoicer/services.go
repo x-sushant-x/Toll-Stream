@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
@@ -26,6 +24,5 @@ func NewInvoiceAggregator(store Storer) *InvoiceAggregator {
 }
 
 func (i *InvoiceAggregator) AggregateDistance(distance types.CalculatedDistance) error {
-	fmt.Println("Calculating Invoice")
 	return i.store.Insert(distance)
 }
