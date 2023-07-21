@@ -1,5 +1,11 @@
 /*
 	On Board Unit - This will send Location Coordinate to receiver service.
+
+	Purpose of this code: -
+
+	1. Generate random OBU IDs.
+	2. Connect to WebSockets.
+	3. Generate location coordinates based on OBU IDs.
 */
 
 package main
