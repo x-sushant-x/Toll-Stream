@@ -1,3 +1,8 @@
+/*
+	Purpose of this file:
+		Provide Insert method that will add distance of an OBU into a map.
+*/
+
 package main
 
 import (

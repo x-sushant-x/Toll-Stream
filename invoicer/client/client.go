@@ -1,3 +1,8 @@
+/*
+	Purpose of this file:
+		Provide a POST http method. This method will be used by kafka consumer to POST calculated data.
+*/
+
 package client
 
 import (
@@ -38,7 +43,7 @@ func (c *AggClient) PostDataToAPI(cDistance types.CalculatedDistance) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("The service response was %d", resp.StatusCode)
+		return fmt.Errorf("the service response was %d", resp.StatusCode)
 	}
 	return nil
 

@@ -1,3 +1,8 @@
+/*
+	Purpose of this file:
+		Start HTTP server and accept POST requests of calculated data.
+*/
+
 package main
 
 import (
