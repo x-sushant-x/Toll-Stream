@@ -1,3 +1,10 @@
+/*
+	Purpose of this file -
+	1. Receive OBU Data and produce this data to Kafka.
+
+	Important: - Producing data means adding incoming data to Kafka Message Queue
+*/
+
 package main
 
 import (
@@ -15,6 +22,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Providing function to execute on PORT 6643 to HTTP.
 	http.HandleFunc("/ws", dataReceiver.wsHandler)
 
 	go func() {
@@ -29,7 +37,8 @@ func main() {
 
 type DataReceiver struct {
 	webSCon *websocket.Conn
-	prod    DataProducer
+	// DataProducer interface contains funciton to produce data to Kafka.
+	prod DataProducer
 }
 
 func NewDataReceiver() (*DataReceiver, error) {
@@ -53,6 +62,7 @@ func NewDataReceiver() (*DataReceiver, error) {
 	}, nil
 }
 
+// This function will handle all the incoming WebSocket messages.
 func (dr *DataReceiver) wsHandler(w http.ResponseWriter, req *http.Request) {
 	/*
 		Upgrading HTTP Connection to Websocket Connection.
@@ -64,9 +74,11 @@ func (dr *DataReceiver) wsHandler(w http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 	dr.webSCon = conn
+
 	go dr.wsRecieveLoop()
 }
 
+// Continously read received messages from the websocket connection.
 func (dr *DataReceiver) wsRecieveLoop() {
 	fmt.Println("Client Connected")
 	for {
@@ -75,6 +87,8 @@ func (dr *DataReceiver) wsRecieveLoop() {
 			log.Println("Error: ", err)
 			continue
 		}
+
+		// Producing to Kafka using DataReceiver struct's
 		dr.prod.ProduceData(data)
 	}
 }

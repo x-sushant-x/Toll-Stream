@@ -1,3 +1,12 @@
+/*
+	Purpose of this file -
+	Define DataProducer interface and a ProduceData function inside it.
+
+	ProduceData function will add received messages to Kafka Queue.
+
+	Dependencies - Kafka Connection
+*/
+
 package main
 
 import (
