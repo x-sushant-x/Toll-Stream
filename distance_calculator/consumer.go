@@ -1,3 +1,8 @@
+/*
+	Purpose of this file:
+		Consume incoming messages, calculate distance and send this distance to aggregator HTTP client.
+*/
+
 package main
 
 import (

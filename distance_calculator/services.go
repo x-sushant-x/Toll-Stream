@@ -1,3 +1,8 @@
+/*
+	Purpose of this file:
+		Provide distance calculation service.
+*/
+
 package main
 
 import (
