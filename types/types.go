@@ -11,3 +11,9 @@ type CalculatedDistance struct {
 	Distance  float64 `json:"distance"`
 	Timestamp int64   `json:"timestamp"`
 }
+
+type Invoice struct {
+	OBUID         int     `json:"obuID"`
+	TotalDistance float64 `json:"totalDistance"`
+	TotalAmount   float64 `json:"totalAmount"`
+}
