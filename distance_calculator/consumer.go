@@ -15,7 +15,7 @@ import (
 
 	"github.com/segmentio/kafka-go"
 	"github.com/sirupsen/logrus"
-	"github.com/sushant102004/Traffic-Toll-Microservice/invoicer/client"
+	"github.com/sushant102004/Traffic-Toll-Microservice/invoicer_aggregator/client"
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 

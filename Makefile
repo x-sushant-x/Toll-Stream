@@ -10,8 +10,11 @@ calculator:
 	@ go build -o bin/calculator ./distance_calculator
 	@ ./bin/calculator
 
-invoicer:
-	@ go build -o bin/invoicer ./invoicer
-	@ ./bin/invoicer
+invoicer_aggregator:
+	@ go build -o bin/invoicer_aggregator ./invoicer_aggregator
+	@ ./bin/invoicer_aggregator
 
-.PHONY: invoicer
+proto:
+	@ protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative types/ptypes.proto
+
+.PHONY: invoicer_aggregator
