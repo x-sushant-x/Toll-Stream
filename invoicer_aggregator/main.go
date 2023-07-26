@@ -9,23 +9,19 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
 
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
-	"google.golang.org/grpc"
 )
 
 func main() {
 	httpListenAddr := flag.String("httpAddr", ":3000", "the listen address of http server")
-	grpcListenAddr := flag.String("grpcAddr", ":3001", "the listen address of http server")
 
 	flag.Parse()
 
 	svc := NewInvoiceAggregator()
 	makeHTTP_Transport(*httpListenAddr, svc)
-	makeGRPCTransport(*grpcListenAddr, svc)
 }
 
 func makeHTTP_Transport(listenAddr string, svc *InvoiceAggregator) {
@@ -33,19 +29,6 @@ func makeHTTP_Transport(listenAddr string, svc *InvoiceAggregator) {
 	http.HandleFunc("/aggregate", handleAggregate(svc))
 	http.HandleFunc("/get-invoice", handleGetInvoice(svc))
 	http.ListenAndServe(listenAddr, nil)
-}
-
-func makeGRPCTransport(listenAddr string, svc *InvoiceAggregator) error {
-	fmt.Println("GRPC Transport Running on Port", listenAddr)
-
-	ln, err := net.Listen("TCP", listenAddr)
-	if err != nil {
-		return err
-	}
-
-	server := grpc.NewServer([]grpc.ServerOption{}...)
-	types.RegisterDistanceAggregatorServer(server, NewGRPCServer(*svc))
-	return server.Serve(ln)
 }
 
 func handleAggregate(svc *InvoiceAggregator) http.HandlerFunc {
