@@ -13,7 +13,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
 	"math/rand"
 	"time"
 
@@ -25,7 +24,8 @@ const wsEndpoint = "ws://127.0.0.1:6443/ws"
 
 func main() {
 
-	obuID := rand.Intn(math.MaxInt)
+	// obuID := rand.Intn(math.MaxInt)
+	obuID := 434243243534
 
 	conn, _, err := websocket.DefaultDialer.Dial(wsEndpoint, nil)
 	if err != nil {
@@ -44,7 +44,7 @@ func main() {
 			fmt.Println("Error: ", err)
 		}
 		fmt.Printf("OBU ID: %d \nLat: %f \nLong: %f \n\n", data.OBUID, data.Lat, data.Long)
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Millisecond * 1)
 
 	}
 }

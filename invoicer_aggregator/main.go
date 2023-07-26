@@ -63,16 +63,18 @@ func handleGetInvoice(svc *InvoiceAggregator) http.HandlerFunc {
 			writeJSON(w, http.StatusBadRequest, map[string]string{
 				"error": err.Error(),
 			})
+			return
 		}
 		_ = obuID
 		inv, err := svc.Get(obuID)
 		if err != nil {
-			writeJSON(w, http.StatusOK, map[string]string{
-				"error": "Can't get total distance",
+			writeJSON(w, http.StatusBadRequest, map[string]string{
+				"error": "OBU ID is invalid.",
 			})
+			return
 		}
 
-		writeJSON(w, http.StatusBadRequest, inv)
+		writeJSON(w, http.StatusOK, inv)
 	}
 }
 
