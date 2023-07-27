@@ -15,6 +15,8 @@ import (
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
+const basePrice = 0.12
+
 func main() {
 	httpListenAddr := flag.String("httpAddr", ":3000", "the listen address of http server")
 
@@ -66,15 +68,23 @@ func handleGetInvoice(svc *InvoiceAggregator) http.HandlerFunc {
 			return
 		}
 		_ = obuID
-		inv, err := svc.Get(obuID)
-		if err != nil {
-			writeJSON(w, http.StatusBadRequest, map[string]string{
-				"error": "OBU ID is invalid.",
-			})
-			return
-		}
+		// inv, err := svc.Get(obuID)
+		// if err != nil {
+		// 	writeJSON(w, http.StatusBadRequest, map[string]string{
+		// 		"error": "OBU ID is invalid.",
+		// 	})
+		// 	return
+		// }
 
-		writeJSON(w, http.StatusOK, inv)
+		// inv := types.Invoice{
+		// 	OBUID:         obuID,
+		// 	TotalDistance: resp.TotalDistance,
+		// 	TotalAmount:   resp.TotalAmount * basePrice,
+		// }
+
+		writeJSON(w, http.StatusOK, map[string]string{
+			"message": "this will work as invoice api",
+		})
 	}
 }
 

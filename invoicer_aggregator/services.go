@@ -1,38 +1,36 @@
 package main
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
-const basePrice = 0.12
-
 type InvoiceAggregator struct {
-	data map[int]float64
+	data       map[int]float64
+	mongoStore *MongoStore
 }
 
 func NewInvoiceAggregator() *InvoiceAggregator {
+	mongoStore := NewMongoStore()
+
 	return &InvoiceAggregator{
-		data: make(map[int]float64),
+		data:       make(map[int]float64),
+		mongoStore: mongoStore,
 	}
 }
 
 func (i *InvoiceAggregator) AggregateDistance(d types.CalculatedDistance) error {
 	i.data[d.OBUID] += d.Distance
+	i.mongoStore.InsertOBUDataInDB(context.Background(), d)
 	return nil
 }
 
-func (i *InvoiceAggregator) Get(obuID int) (types.Invoice, error) {
-	dist, ok := i.data[obuID]
-	if !ok {
-		return types.Invoice{}, fmt.Errorf("no information available for this OBU ID")
-	}
+func (i *InvoiceAggregator) GetInvoice(obuID int) ([]*types.Invoice, error) {
+	resp, error := i.mongoStore.GetInvoice(context.Background(), int64(obuID))
 
-	inv := types.Invoice{
-		OBUID:         obuID,
-		TotalDistance: dist,
-		TotalAmount:   dist * basePrice,
+	if error != nil {
+		return nil, error
 	}
-	return inv, nil
+	return resp, nil
 }
