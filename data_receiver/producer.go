@@ -22,6 +22,16 @@ import (
 const topic = "toll-service"
 const partition = 0
 
+/*
+We are using interface instead of directly using struct because this
+will be passed through decorator pattern middleware which will first
+print out logs and than call this ProduceData method.
+
+That middleware will be of LoggerMiddleware types and our main Kafka
+Producer will be of KafkaProducer type.
+
+To prevent mismatch of types we can use DataProducer interface.
+*/
 type DataProducer interface {
 	ProduceData(types.OBUData)
 }

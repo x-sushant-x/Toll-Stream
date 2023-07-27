@@ -39,6 +39,7 @@ type DataReceiver struct {
 	webSCon *websocket.Conn
 	// DataProducer interface contains funciton to produce data to Kafka.
 	prod DataProducer
+	// prod *KafkaProducer
 }
 
 func NewDataReceiver() (*DataReceiver, error) {

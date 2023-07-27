@@ -8,11 +8,6 @@ import (
 
 const basePrice = 0.12
 
-type InvoiceHandler interface {
-	Insert(types.CalculatedDistance) error
-	Get(obuID int) (float64, error)
-}
-
 type InvoiceAggregator struct {
 	data map[int]float64
 }

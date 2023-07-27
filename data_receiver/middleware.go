@@ -10,7 +10,8 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
+	"fmt"
+
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
 )
 
@@ -34,13 +35,11 @@ func NewLogMiddleware(next DataProducer) (*LogMiddleware, error) {
 */
 
 func (l *LogMiddleware) ProduceData(data types.OBUData) {
-	defer logrus.WithFields(
-		logrus.Fields{
-			"obuID": data.OBUID,
-			"lat":   data.Lat,
-			"long":  data.Long,
-		},
-	).Info("Producing to Kafka")
+	fmt.Println("Producing Data to Kafka")
+	fmt.Println("OBU ID: ", data.OBUID)
+	fmt.Println("Lat: ", data.Lat)
+	fmt.Println("Long: ", data.Long)
+	fmt.Println()
 
 	l.next.ProduceData(data)
 }

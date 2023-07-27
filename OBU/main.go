@@ -44,7 +44,7 @@ func main() {
 			fmt.Println("Error: ", err)
 		}
 		fmt.Printf("OBU ID: %d \nLat: %f \nLong: %f \n\n", data.OBUID, data.Lat, data.Long)
-		time.Sleep(time.Millisecond * 1)
+		time.Sleep(time.Second * 5)
 
 	}
 }
