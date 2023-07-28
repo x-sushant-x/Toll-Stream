@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/sushant102004/Traffic-Toll-Microservice/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -20,7 +21,7 @@ func NewMongoStore() *MongoStore {
 		return nil
 	}
 
-	col := conn.Database("Toll-Calculator").Collection("ObuData")
+	col := conn.Database("Toll-Calculator").Collection("Trips")
 
 	return &MongoStore{
 		conn: conn,
@@ -36,6 +37,27 @@ func (s *MongoStore) InsertOBUDataInDB(ctx context.Context, data types.Calculate
 	return nil
 }
 
-func (s *MongoStore) GetInvoice(ctx context.Context, obuID int64) ([]*types.Invoice, error) {
-	return nil, nil
+func (s *MongoStore) GetInvoice(ctx context.Context, obuID int64) (float64, error) {
+	filter := bson.M{"obuid": obuID}
+
+	cursor, err := s.col.Find(ctx, filter)
+	if err != nil {
+		return 0, err
+	}
+
+	var sum float64
+	for cursor.Next(ctx) {
+		var data types.CalculatedDistance
+		if err := cursor.Decode(&data); err != nil {
+			return 0, err
+		}
+		sum = sum + data.Distance
+	}
+
+	if err := cursor.Err(); err != nil {
+		return 0, err
+	}
+
+	return sum, nil
+
 }

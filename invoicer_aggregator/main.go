@@ -68,23 +68,21 @@ func handleGetInvoice(svc *InvoiceAggregator) http.HandlerFunc {
 			return
 		}
 		_ = obuID
-		// inv, err := svc.Get(obuID)
-		// if err != nil {
-		// 	writeJSON(w, http.StatusBadRequest, map[string]string{
-		// 		"error": "OBU ID is invalid.",
-		// 	})
-		// 	return
-		// }
+		resp, err := svc.GetInvoice(obuID)
+		if err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]string{
+				"error": "OBU ID is invalid.",
+			})
+			return
+		}
 
-		// inv := types.Invoice{
-		// 	OBUID:         obuID,
-		// 	TotalDistance: resp.TotalDistance,
-		// 	TotalAmount:   resp.TotalAmount * basePrice,
-		// }
+		res := types.Invoice{
+			OBUID:         obuID,
+			TotalAmount:   resp * basePrice,
+			TotalDistance: resp,
+		}
 
-		writeJSON(w, http.StatusOK, map[string]string{
-			"message": "this will work as invoice api",
-		})
+		writeJSON(w, http.StatusOK, res)
 	}
 }
 
