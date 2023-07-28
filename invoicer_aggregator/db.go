@@ -37,8 +37,8 @@ func (s *MongoStore) InsertOBUDataInDB(ctx context.Context, data types.Calculate
 	return nil
 }
 
-func (s *MongoStore) GetInvoice(ctx context.Context, obuID int64) (float64, error) {
-	filter := bson.M{"obuid": obuID}
+func (s *MongoStore) GetInvoice(ctx context.Context, obuID int64, date string) (float64, error) {
+	filter := bson.M{"obuid": obuID, "date": date}
 
 	cursor, err := s.col.Find(ctx, filter)
 	if err != nil {
