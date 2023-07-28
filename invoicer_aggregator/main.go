@@ -60,6 +60,16 @@ func handleGetInvoice(svc *InvoiceAggregator) http.HandlerFunc {
 			return
 		}
 
+		date, ok := r.URL.Query()["date"]
+		if !ok {
+			writeJSON(w, http.StatusNotAcceptable, map[string]string{
+				"error": "please provide a valid date",
+			})
+			return
+		}
+
+		reqDate := date[0]
+
 		obuID, err := strconv.Atoi(values[0])
 		if err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{
@@ -80,6 +90,7 @@ func handleGetInvoice(svc *InvoiceAggregator) http.HandlerFunc {
 			OBUID:         obuID,
 			TotalAmount:   resp * basePrice,
 			TotalDistance: resp,
+			Date:          reqDate,
 		}
 
 		writeJSON(w, http.StatusOK, res)

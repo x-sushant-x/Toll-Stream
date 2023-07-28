@@ -72,10 +72,13 @@ func (c *KafkaConsumer) consume() {
 
 		fmt.Println("Distance: ", dist)
 
+		currentTime := time.Now()
+		currentDate := currentTime.Format("02:01:2006")
+
 		req := types.CalculatedDistance{
-			OBUID:     data.OBUID,
-			Distance:  dist,
-			Timestamp: time.Now().UnixNano(),
+			OBUID:    data.OBUID,
+			Distance: dist,
+			Date:     currentDate,
 		}
 
 		if err := c.aggClient.PostDataToAPI(req); err != nil {
