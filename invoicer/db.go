@@ -29,14 +29,6 @@ func NewMongoStore() *MongoStore {
 	}
 }
 
-func (s *MongoStore) InsertOBUDataInDB(ctx context.Context, data types.CalculatedDistance) error {
-	_, err := s.col.InsertOne(ctx, data)
-	if err != nil {
-		fmt.Println("mongo error:", err.Error())
-	}
-	return nil
-}
-
 func (s *MongoStore) GetInvoice(ctx context.Context, obuID int64, date string) (float64, error) {
 	filter := bson.M{"obuid": obuID, "date": date}
 

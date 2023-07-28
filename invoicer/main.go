@@ -1,11 +1,7 @@
-/*
-	Purpose of this file:
-		Start HTTP server and accept POST requests of calculated data.
-*/
-
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -19,39 +15,17 @@ import (
 const basePrice = 0.04
 
 func main() {
-	httpListenAddr := flag.String("httpAddr", ":3000", "the listen address of http server")
+	listenAddr := flag.String("httpAddr", ":3001", "the listen address of http server")
 
-	flag.Parse()
+	fmt.Println("Invoicer running on port: 3001")
 
-	svc := NewInvoiceAggregator()
-	makeHTTP_Transport(*httpListenAddr, svc)
+	invoicer := NewMongoStore()
+	http.HandleFunc("/get-invoice", handleGetInvoice(invoicer))
+	http.ListenAndServe(*listenAddr, nil)
+
 }
 
-func makeHTTP_Transport(listenAddr string, svc *InvoiceAggregator) {
-	fmt.Println("HTTP Transport Running on Port", listenAddr)
-	http.HandleFunc("/aggregate", handleAggregate(svc))
-	http.HandleFunc("/get-invoice", handleGetInvoice(svc))
-	http.ListenAndServe(listenAddr, nil)
-}
-
-func handleAggregate(svc *InvoiceAggregator) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var distance types.CalculatedDistance
-		if err := json.NewDecoder(r.Body).Decode(&distance); err != nil {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
-			return
-		}
-		fmt.Println(distance)
-
-		// This will insert data into memory map.
-		if err := svc.AggregateDistance(distance); err != nil {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
-			return
-		}
-	}
-}
-
-func handleGetInvoice(svc *InvoiceAggregator) http.HandlerFunc {
+func handleGetInvoice(svc *MongoStore) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		values, ok := r.URL.Query()["obu"]
 		if !ok {
@@ -79,7 +53,8 @@ func handleGetInvoice(svc *InvoiceAggregator) http.HandlerFunc {
 			return
 		}
 		_ = obuID
-		resp, err := svc.GetInvoice(obuID, reqDate)
+
+		resp, err := svc.GetInvoice(context.Background(), int64(obuID), reqDate)
 		if err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{
 				"error": "OBU ID is invalid.",
