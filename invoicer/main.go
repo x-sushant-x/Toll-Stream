@@ -57,7 +57,7 @@ func handleGetInvoice(svc *MongoStore) http.HandlerFunc {
 		resp, err := svc.GetInvoice(context.Background(), int64(obuID), reqDate)
 		if err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{
-				"error": "OBU ID is invalid.",
+				"error": err.Error(),
 			})
 			return
 		}
@@ -74,6 +74,10 @@ func handleGetInvoice(svc *MongoStore) http.HandlerFunc {
 }
 
 func writeJSON(w http.ResponseWriter, status int, body any) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.WriteHeader(status)
 	w.Header().Add("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(body)

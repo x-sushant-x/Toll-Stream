@@ -18,4 +18,7 @@ invoicer:
 	@ go build -o bin/invoicer ./invoicer
 	@ ./bin/invoicer
 
-.PHONY: aggregator invoicer
+web:
+	@ cd web/toll-stream-frontend && npm run dev
+
+.PHONY: aggregator invoicer web
